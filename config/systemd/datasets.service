@@ -1,0 +1,33 @@
+[Unit]
+Description=Datasets primary service (resque pool)
+After=network.target
+After=redis-server.service
+Requires=redis-server.service
+Requires=datasets-scheduler.service
+PropagatesReloadTo=datasets-scheduler.service
+
+[Service]
+Type=forking
+User=datasets
+Group=datasets
+WorkingDirectory=/htapps/dpn/dpn-production/current
+PIDFile=/htapps/dpn/dpn-production/shared/log/resque-pool.pid
+ExecStart=/l/local/rbenv/bin/rbenv exec bundle exec resque-pool --daemon -p /htapps/dpn/dpn-production/shared/log/resque-pool.pid --environment production
+ExecStop=/bin/kill -HUP $MAINPID
+ExecReload=/bin/kill -HUP $MAINPID
+
+UMask=0002
+Nice=19
+
+Environment="REDIS_NS=datasets"
+Environment="RAILS_ENV=production"
+Environment="RBENV_ROOT=/l/local/rbenv"
+Environment="RUN_AT_EXIT_HOOKS=true"
+Environment="TERM_CHILD=1"
+
+TimeoutStartSec=20
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

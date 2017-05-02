@@ -1,0 +1,24 @@
+[Unit]
+Description=Datasets Resque-Scheduler
+After=redis-server.service
+Requires=redis-server.service
+PartOf=datasets.service
+
+[Service]
+Type=simple
+
+User=datasets
+Group=datasets
+WorkingDirectory=
+UMask=0002
+
+Environment="RAILS_ENV=production"
+Environment="RBENV_ROOT=/l/local/rbenv"
+ExecStart=/l/local/rbenv/bin/rbenv exec bundle exec rake resque:scheduler
+
+TimeoutStartSec=20
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
